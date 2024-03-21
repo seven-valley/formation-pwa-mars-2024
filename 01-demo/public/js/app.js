@@ -4,7 +4,7 @@ if ("serviceWorker" in navigator) {
 
 	// ... puis on l'enregistre dans l'application //
 	try {
-		const registration = await navigator.serviceWorker.register("./sw.js");
+		const registration = await navigator.serviceWorker.register("/sw.js");
 		console.log("Le service worker est enregistré !", registration);
 	} catch (error) {
 		console.log("Une erreur à eut lieu !", error.message);

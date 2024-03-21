@@ -1,12 +1,14 @@
-const cacheName = "Demo-1";
+//const cacheName = "Demo-1";
+const cacheName = "Demo-2";
 
 // définir les fichiers à mettre en cache
 const assets =[
     "/",
     "manifest.json",
+    "/js/app.js",
     "/index.html",
     //"css/style.css",
-    "/images/pwa-logo.png",
+    "/images/concombre.jpg",
 ];
 
 // pendant l instalation du service worker 
@@ -33,7 +35,22 @@ self.addEventListener('install', async(event) =>{
     }
     event.waitUntil(mettreEnCache());
 });
+// -----------------------------------------------
+// Activation Service worker
+// -----------------------------------------------
 
+self.addEventListener ('activate', async (event)=>{
+    const effacerCache = async (nom)=>{
+        await caches.delete(nom);
+    }
+    const effacerTousLesCaches= async()=>{
+        
+        const liste = await caches.keys();
+        const cachesToDelete = liste.filter( nom => nom !=cacheName);
+        await Promise.all(cachesToDelete.map(effacerCache));
+    }
+    event.waitUntil(effacerTousLesCaches());
+})
 // -----------------------------------------------
 // interception
 // -----------------------------------------------
