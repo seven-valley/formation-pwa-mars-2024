@@ -37,7 +37,7 @@ Documentation : [Manifest](https://developer.mozilla.org/fr/docs/Mozilla/Add-ons
 <code>index.html</code>
 
 ```html
-<link rel="manifest" src="manifest.json" />
+<link rel="manifest" href="manifest.json" />
 ```
 
 <code>manifest.json</code>
