@@ -8,9 +8,6 @@ const assets =[
     "/js/app.js",
     "/index.html",
     //"css/style.css",
-    "/images/pwa-72.png",
-    "/images/pwa-128.png",
-    "/images/pwa-192.png",
     "/images/concombre.jpg",
 ];
 
@@ -34,7 +31,6 @@ self.addEventListener('install', async(event) =>{
         //cache.addAll(assets);
         for ( let a of assets){
             cache.add(a);
-            console.log(a);
         }
     }
     event.waitUntil(mettreEnCache());
@@ -46,6 +42,7 @@ self.addEventListener('install', async(event) =>{
 self.addEventListener ('activate', async (event)=>{
     const effacerCache = async (nom)=>{
         await caches.delete(nom);
+        console.log(nom)
     }
     const effacerTousLesCaches= async()=>{
         
@@ -66,7 +63,12 @@ self.addEventListener ('fetch', async (event)=>{
             console.log('ce fichier est ds le cache !',event.request);
             return cacheResponse;
         }else{
-            return fetch(event.request);
+            try{
+                return fetch(event.request);
+            }catch{
+
+            }
+           
         }
     }
     event.respondWith(interception())
