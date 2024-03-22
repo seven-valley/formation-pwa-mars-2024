@@ -1,4 +1,4 @@
-const cacheName = "Demo-1";
+const cacheName = "Demo-5";
 //const cacheName = "Demo-2";
 
 // définir les fichiers à mettre en cache
@@ -6,12 +6,10 @@ const assets =[
     "/",
     "manifest.json",
     "/js/app.js",
+    "/js/scripts.js",
+    "/js/umd.js",
     "/index.html",
-    //"css/style.css",
-    "/images/pwa-72.png",
-    "/images/pwa-128.png",
-    "/images/pwa-192.png",
-    "/images/concombre.jpg",
+   
 ];
 
 // pendant l instalation du service worker 
@@ -34,7 +32,7 @@ self.addEventListener('install', async(event) =>{
         //cache.addAll(assets);
         for ( let a of assets){
             cache.add(a);
-            console.log(a);
+          
         }
     }
     event.waitUntil(mettreEnCache());
@@ -63,10 +61,13 @@ self.addEventListener ('fetch', async (event)=>{
         //est ce que c'est dans le cache  ?
         const cacheResponse = await caches.match(event.request);
         if (cacheResponse){
-            console.log('ce fichier est ds le cache !',event.request);
+           // console.log('ce fichier est ds le cache !',event.request);
             return cacheResponse;
         }else{
+            try {
             return fetch(event.request);
+            }
+            catch{}
         }
     }
     event.respondWith(interception())
