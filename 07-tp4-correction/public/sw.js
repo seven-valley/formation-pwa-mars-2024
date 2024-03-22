@@ -1,74 +1,82 @@
-const cacheName = "Demo-5";
-//const cacheName = "Demo-2";
+// importScripts("./js/umd.js");
+// importScripts("./js/idb.js");
 
-// définir les fichiers à mettre en cache
-const assets =[
-    "/",
-    "manifest.json",
-    "/js/app.js",
-    "/js/scripts.js",
-    "/js/umd.js",
-    "/index.html",
-   
+// SETUP CACHE //
+
+const cacheName = "vip_cocktail-";
+const cacheVersion = "2";
+const assets = [
+	"/",
+	"manifest.json",
+	"/index.html",
+	"/js/app.js",
+	"/js/umd.js",
+	"/js/idb.js",
+	"/js/db.js",
+	"https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css",
 ];
 
-// pendant l instalation du service worker 
-// declare notre cache
+// INSTALL => CACHE ASSETS //
 
-// function affiche async() {
-//     console.log('hello');
-// }
-const affiche = async()=>{
-    console.log('hello');
-}
+self.addEventListener("install", async (event) => {
+	const caacheAssets = async () => {
+		const cache = await caches.open(cacheName + cacheVersion);
 
-self.addEventListener('install', async(event) =>{
-     const mettreEnCache = async()=>{
-        // je viens cherche l objet cache
-        //const cache = await caches.open('Demo-1');
-        const cache = await caches.open(cacheName);
+		for (let asset of assets) {
+			cache.add(asset);
+		}
+	};
 
-        // mettre en cache
-        //cache.addAll(assets);
-        for ( let a of assets){
-            cache.add(a);
-          
-        }
-    }
-    event.waitUntil(mettreEnCache());
+	event.waitUntil(caacheAssets());
 });
-// -----------------------------------------------
-// Activation Service worker
-// -----------------------------------------------
 
-self.addEventListener ('activate', async (event)=>{
-    const effacerCache = async (nom)=>{
-        await caches.delete(nom);
-    }
-    const effacerTousLesCaches= async()=>{
-        
-        const liste = await caches.keys();
-        const cachesToDelete = liste.filter( nom => nom !=cacheName);
-        await Promise.all(cachesToDelete.map(effacerCache));
-    }
-    event.waitUntil(effacerTousLesCaches());
-})
-// -----------------------------------------------
-// interception
-// -----------------------------------------------
-self.addEventListener ('fetch', async (event)=>{
-    const interception = async ()=>{
-        //est ce que c'est dans le cache  ?
-        const cacheResponse = await caches.match(event.request);
-        if (cacheResponse){
-           // console.log('ce fichier est ds le cache !',event.request);
-            return cacheResponse;
-        }else{
-            try {
-            return fetch(event.request);
-            }
-            catch{}
-        }
-    }
-    event.respondWith(interception())
+// ACTIVATE => DELETE OLD CACHE //
+
+self.addEventListener("activate", (event) => {
+	const deleteCache = async (key) => {
+		await caches.delete(key);
+	};
+
+	const deleteOldCaches = async () => {
+		const keyList = await caches.keys();
+		const cachesToDelete = keyList.filter((key) => {
+			if (
+				key.includes(cacheName) &&
+				key.replace(cacheName, "") !== cacheVersion
+			)
+				return key;
+		});
+
+		await Promise.all(cachesToDelete.map(deleteCache));
+	};
+
+	event.waitUntil(deleteOldCaches());
+});
+
+// CATCH FETCH - ASSETS //
+
+self.addEventListener("fetch", async (event) => {
+	const fetchInterception = async () => {
+		const cachedResponse = await caches.match(event.request);
+
+		if (cachedResponse) {
+			console.log("Coming from cache : ", event.request.url);
+			return cachedResponse;
+		} else {
+			return fetch(event.request);
+		}
+	};
+
+	event.respondWith(fetchInterception());
+});
+
+// SYNC EVENT - SEND MESSAGE TO APP === RUN WAITING OPERATIONS //
+
+self.addEventListener("sync", async (event) => {
+	console.log("sync event : ", event);
+
+	const clients = await self.clients.matchAll();
+	clients.forEach((client) => {
+		client.postMessage("onLine");
+	});
 });
